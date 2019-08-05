@@ -1,0 +1,19 @@
+{
+  "name": "drummy_server",
+  "version": "0.0.1",
+  "description": "midi in, websocket out",
+  "main": "index.js",
+  "dependencies": {
+    "easymidi": "^1.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "midi",
+    "websocket"
+  ],
+  "author": "batdevis",
+  "private": true
+}
