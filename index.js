@@ -1,9 +1,12 @@
-const interface = 'USB Midi Controller:USB Midi Controller MIDI 1 24:0';
-const easymidi = require('easymidi');
-const input = new easymidi.Input(interface);
 const cfg = {
-  port: 8002
+  port: 8002,
+  midi_interface: 'USB Midi Controller MIDI 1'
+  //midi_interface: 'USB Midi Controller:USB Midi Controller MIDI 1 24:0';
 }
+const easymidi = require('easymidi');
+const inputs = easymidi.getInputs();
+//const input = new easymidi.Input(cfg.midi_interface);
+const input = new easymidi.Input(inputs[inputs.length - 1]);
 
 input.on('cc', handle_cc);
 
@@ -42,18 +45,20 @@ wsServer.on('request', function(request) {
     return;
   }
 
+  //TODO check protocol here and avoid "throw new Error('Specified protocol was not requested by the client.');" error
   let connection = request.accept('echo-protocol', request.origin);
   connections.push(connection);
   console.log((new Date()) + ' Connection accepted.');
 
   connection.on('close', function(reasonCode, description) {
     console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
-    connections.delete(connection);
+    const index = connections.indexOf(connection);
+    connections.splice(connections, 1);
   });
 });
 
 function ws_send(msg) {
   for(let i=0; i < connections.length; i++){
-    connections[i].sendUTF(msg);
+    connections[i].sendUTF(JSON.stringify(msg));
   }
 }
