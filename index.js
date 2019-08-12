@@ -18,9 +18,9 @@ function handleCc(msg) {
 }
 
 function midiInputActivate(device){
-  const device = new easymidi.Input(device);
   midiInput = device;
-  device.on('cc', handleCc);
+  const input = new easymidi.Input(device);
+  input.on('cc', handleCc);
 }
 
 // --- SERVER
@@ -77,8 +77,8 @@ io.on('connection', function (socket) {
     socket.emit('midiInputList', rtn);
   });
 
-  socket.on('midiInputActivate', function (data) {
-    console.log('[ws] req midiInputActivate', data);
+  socket.on('setMidiInput', function (data) {
+    console.log('[ws] req setMidiInput', data);
     //TODO promise
     midiInputActivate(data.device);
     const rtn = midiInputList();
