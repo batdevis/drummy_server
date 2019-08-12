@@ -3,62 +3,61 @@ const cfg = {
   midi_interface: 'USB Midi Controller MIDI 1'
   //midi_interface: 'USB Midi Controller:USB Midi Controller MIDI 1 24:0';
 }
+
+// --- MIDI
 const easymidi = require('easymidi');
-const inputs = easymidi.getInputs();
-//const input = new easymidi.Input(cfg.midi_interface);
-const input = new easymidi.Input(inputs[inputs.length - 1]);
 
-input.on('cc', handle_cc);
-
-function handle_cc(msg) {
-  console.log('cc', msg);
-  ws_send(msg);
+function midiInputs(){
+  return easymidi.getInputs();
 }
 
-const WebSocketServer = require('websocket').server;
+function handleCc(msg) {
+  console.log('cc', msg);
+  wsSend(msg);
+}
+
+function midiInputActivate(device){
+  const midiInput = new easymidi.Input(device);
+  midiInput.on('cc', handleCc);
+}
+
+// --- SERVER
 const http = require('http');
-const server = http.createServer(function(request, response) {
-  console.log((new Date()) + ' Received request for ' + request.url);
-  response.writeHead(404);
-  response.end();
-});
+
+const server = require('http').createServer(handler)
+const io = require('socket.io')(http);
+
 server.listen(cfg.port, function() {
   console.log((new Date()) + ` Server is listening on port ${cfg.port}`);
 });
 
-wsServer = new WebSocketServer({
-  httpServer: server,
-  autoAcceptConnections: false
-});
-
-function originIsAllowed(origin) {
-  // put logic here to detect whether the specified origin is allowed.
-  return true;
+function handler(req, res){
+  console.log((new Date()) + ' Received request for ' + request.url);
+  response.writeHead(404);
+  response.end();
 }
 
-const connections = [];
-wsServer.on('request', function(request) {
-  if (!originIsAllowed(request.origin)) {
-    // Make sure we only accept requests from an allowed origin
-    request.reject();
-    console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
-    return;
-  }
+// --- WEBSOCKET
+io.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
 
-  //TODO check protocol here and avoid "throw new Error('Specified protocol was not requested by the client.');" error
-  let connection = request.accept('echo-protocol', request.origin);
-  connections.push(connection);
-  console.log((new Date()) + ' Connection accepted.');
+  socket.on('disconnect', function () {
+    io.emit('client disconnected');
+  });
+  
+  socket.on('connect', function () {
+    io.emit('client connected');
+  });
 
-  connection.on('close', function(reasonCode, description) {
-    console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
-    const index = connections.indexOf(connection);
-    connections.splice(connections, 1);
+  socket.on('midiInputList', function (data) {
+    console.log('[ws] req midiInputList', data);
+    const rtn = midiInputs();
+    console.log('[ws] send midiInputList', rtn);
+    socket.emit('midiInputList', rtn);
+  });
+
+  socket.on('midiInputActivate', function (data) {
+    midiInputActivate(data.device);
   });
 });
 
-function ws_send(msg) {
-  for(let i=0; i < connections.length; i++){
-    connections[i].sendUTF(JSON.stringify(msg));
-  }
-}
