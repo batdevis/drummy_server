@@ -1,3 +1,4 @@
+const fs = require('fs');
 const cfg = {
   port: 8002,
   midi_interface: 'USB Midi Controller MIDI 1'
@@ -8,6 +9,8 @@ const cfg = {
 const easymidi = require('easymidi');
 let midiInput;
 
+loadDevice();
+
 function midiInputs(){
   return easymidi.getInputs();
 }
@@ -17,10 +20,48 @@ function handleCc(msg) {
   wsSend(msg);
 }
 
-function midiInputActivate(device){
+function midiInputActivate(device, save = true){
   midiInput = device;
   const input = new easymidi.Input(device);
+  if(save){
+    saveDevice(device);
+  }
   input.on('cc', handleCc);
+}
+
+function saveDevice(device){
+  json = JSON.stringify(
+    {
+      device: device
+    }
+  );
+  fs.writeFile('./data/device.json', json, (err) => {
+    if (err) {
+      console.error('[saveDevice]', err);
+      return;
+    };
+    console.log('[saveDevice] file written for device', device);
+  });
+}
+
+function loadDevice(){
+  let path = './data/device.json';
+  fs.access(path, fs.F_OK, (err) => {
+    if (err) {
+      console.error('[loadDevice]', err);
+      return;
+    }
+    //file exists
+    fs.readFile(path, (err, content) => {
+      let device = JSON.parse(content).device;
+      if(midiInputs().indexOf(device) > -1){
+        console.log('[loadDevice] loading device', device);
+        midiInputActivate(device, false);
+      } else {
+        console.log('[loadDevice] device not found', device);
+      }
+    });
+  })
 }
 
 // --- SERVER
