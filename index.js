@@ -8,8 +8,11 @@ const cfg = {
 // --- MIDI
 const easymidi = require('easymidi');
 let midiInput;
+let pedalboards;
 
 loadDevice();
+//TODO loadPedalboards() from inside midiInputList()
+loadPedalboards();
 
 function midiInputs(){
   return easymidi.getInputs();
@@ -29,19 +32,18 @@ function midiInputActivate(device, save = true){
   input.on('cc', handleCc);
 }
 
-function saveDevice(device){
-  json = JSON.stringify(
-    {
-      device: device
+function midiInputList() {
+  //loadPedalboards();
+  let pedalboard = pedalboards[midiInput] || null;
+  let rtn = {
+    inputs: midiInputs(),
+    active: {
+      name: midiInput,
+      pedalboard: pedalboard
     }
-  );
-  fs.writeFile('./data/device.json', json, (err) => {
-    if (err) {
-      console.error('[saveDevice]', err);
-      return;
-    };
-    console.log('[saveDevice] file written for device', device);
-  });
+  };
+  console.log('[midiInputList]', rtn);
+  return rtn;
 }
 
 function loadDevice(){
@@ -61,8 +63,40 @@ function loadDevice(){
         console.log('[loadDevice] device not found', device);
       }
     });
-  })
+  });
 }
+
+function saveDevice(device){
+  json = JSON.stringify(
+    {
+      device: device
+    }
+  );
+  fs.writeFile('./data/device.json', json, (err) => {
+    if (err) {
+      console.error('[saveDevice]', err);
+      return;
+    };
+    console.log('[saveDevice] file written for device', device);
+  });
+}
+
+function loadPedalboards(){
+  console.log('[loadPedalboards]');
+  let path = './data/pedalboards.json';
+  fs.access(path, fs.F_OK, (err) => {
+    if (err) {
+      console.error('[loadPedalboards]', err);
+      return;
+    }
+    //file exists
+    fs.readFile(path, (err, content) => {
+      pedalboards = JSON.parse(content);
+      console.log('[loadPedalboards] loading pedalboards', pedalboards);
+    });
+  });
+}
+
 
 // --- SERVER
 const server = require('http').createServer(httpHandler);
@@ -88,13 +122,6 @@ function httpHandler(request, response) {
   response.setHeader('Access-Control-Allow-Origin', '*');
   response.writeHead(404);
   response.end();
-}
-
-function midiInputList() {
-  return {
-    inputs: midiInputs(),
-    active: midiInput
-  };
 }
 
 // --- WEBSOCKET
