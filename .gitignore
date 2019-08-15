@@ -88,3 +88,4 @@ typings/
 .dynamodb/
 
 data/device.json
+data/pedalboards.json
