@@ -1,30 +1,36 @@
 {
-  "device": "Midi Through:Midi Through Port-0 14:0",
-  "mapping": {
-    "track01": {
-      "message_type": "cc",
-      "channel": 96,
-      "value": 127
-    }, 
-    "track02": {
-      "message_type": "cc",
-      "channel": 97,
-      "value": 127
-    },
-    "track03": {
-      "message_type": "cc",
-      "channel": 98,
-      "value": 127
-    }, 
-    "track04": {
-      "message_type": "cc",
-      "channel": 99,
-      "value": 127
-    }, 
-    "play_pause_all": {
-      "message_type": "cc",
-      "channel": 100,
-      "value": 127
-    } 
+  "Midi Through:Midi Through Port-0 14:0": {
+    "mappings": {
+      "track01": {
+        "message_type": "cc",
+        "channel": 96,
+        "value": 127
+      }, 
+      "track02": {
+        "message_type": "cc",
+        "channel": 97,
+        "value": 127
+      },
+      "track03": {
+        "message_type": "cc",
+        "channel": 98,
+        "value": 127
+      }, 
+      "track04": {
+        "message_type": "cc",
+        "channel": 99,
+        "value": 127
+      }, 
+      "play_pause_all": {
+        "message_type": "cc",
+        "channel": 100,
+        "value": 127
+      }, 
+      "layer_mode": {
+        "message_type": "cc",
+        "channel": 101,
+        "value": 127
+      } 
+    }
   }
 }
