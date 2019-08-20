@@ -77,11 +77,11 @@ class MidiStore {
 
   midiInputList() {
     //loadPedalboards();
-    let pedalboard = pedalboards[midiInput] || null;
+    let pedalboard = this.pedalboards[this.midiInput] || null;
     let rtn = {
-      inputs: midiInputs(),
+      inputs: this.midiInputs(),
       active: {
-        name: midiInput,
+        name: this.midiInput,
         pedalboard: pedalboard
       }
     };

@@ -23,7 +23,10 @@ class FileBank{
     this.tree = tree;
     return tree;
   }
+
+  reload() {
+    this.load();
+  }
 }
 
-const fileBank = new FileBank();
-module.exports = fileBank;
+module.exports = new FileBank();
