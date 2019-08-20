@@ -2,6 +2,7 @@
 const server = require('./http_server.js');
 // --- MIDI
 const midiStore = require('./midi_store.js');
+const fileBank = require('./file_bank.js');
 
 // --- WEBSOCKET
 const io = require('socket.io')(server);
@@ -34,6 +35,13 @@ io.on('connection', function (socket) {
     const rtn = midiStore.midiInputList();
     console.log('[ws] send midiInputList', rtn);
     socket.emit('midiInputList', rtn);
+  });
+
+  socket.on('getFileTree', function (data) {
+    console.log('[ws] getFileTree', data);
+    const rtn = fileBank.tree();
+    console.log('[ws] send fileTree', rtn);
+    socket.emit('fileTree', rtn);
   });
 
   socket.on('setMidiInput', function (data) {
