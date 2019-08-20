@@ -1,9 +1,5 @@
 const fs = require('fs');
-const cfg = {
-  port: 8002,
-  midi_interface: 'USB Midi Controller MIDI 1'
-  //midi_interface: 'USB Midi Controller:USB Midi Controller MIDI 1 24:0';
-}
+const cfg = require('./cfg.json');
 
 // --- MIDI
 const easymidi = require('easymidi');

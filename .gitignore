@@ -89,3 +89,4 @@ typings/
 
 data/device.json
 data/pedalboards.json
+cfg.json
