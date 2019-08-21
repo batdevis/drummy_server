@@ -45,7 +45,7 @@ class MidiStore {
   }
 
   saveDevice(device) {
-    json = JSON.stringify(
+    const json = JSON.stringify(
       {
         device: device
       }
