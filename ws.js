@@ -65,10 +65,11 @@ io.on('connection', function (socket) {
     socket.emit('midiInputList', rtn);
   });
 
+  // data = {channelId: '01', filePath: 'A/A1.wav'}
   socket.on('setChannelFile', function (data) {
-    console.log('[ws] req setMidiInput', data);
+    console.log('[ws] req setChannelFile', data);
     //TODO promise
-    mixer.setChannelFile(data.id, data.file);
+    mixer.setChannelFile(data.channelId, data.filePath);
     const rtn = {
       channels: mixer.channels
     }
