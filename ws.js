@@ -64,6 +64,17 @@ io.on('connection', function (socket) {
     const rtn = midiStore.midiInputList();
     socket.emit('midiInputList', rtn);
   });
+
+  socket.on('setChannelFile', function (data) {
+    console.log('[ws] req setMidiInput', data);
+    //TODO promise
+    mixer.setChannelFile(data.id, data.file);
+    const rtn = {
+      channels: mixer.channels
+    }
+    console.log('[ws] send channels', rtn);
+    socket.emit('channels', rtn);
+  });
 });
 
 module.exports = io;
