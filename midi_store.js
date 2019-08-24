@@ -75,14 +75,16 @@ class MidiStore {
     });
   }
 
+  pedalboard() {
+    return this.pedalboards[this.midiInput] || null;
+  }
+
   midiInputList() {
-    //loadPedalboards();
-    let pedalboard = this.pedalboards[this.midiInput] || null;
     let rtn = {
       inputs: this.midiInputs(),
       active: {
         name: this.midiInput,
-        pedalboard: pedalboard
+        pedalboard: this.pedalboard()
       }
     };
     console.log('[midiInputList]', rtn);
@@ -92,6 +94,20 @@ class MidiStore {
   handleCc(msg) {
     console.log('cc', msg);
     io.emit('cc', msg);
+
+    const mappings = this.pedalboard().mappings;
+    const key = Object.keys(mappings).find(k => {
+      (
+        (mappings[k].message_type === 'cc') &&
+        (mappings[k].channel === msg.channel) &&
+        (mappings[k].value === msg.value)
+      )
+    })
+    const cmd = {
+      cmd: key
+    };
+    console.log('cmd', cmd);
+    io.emit('cmd', cmd);
   }
 
 }
