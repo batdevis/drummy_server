@@ -2,7 +2,8 @@
 const server = require('./http_server.js');
 
 // --- WEBSOCKET
-const io = require('socket.io')(server);
+const SocketIo = require('socket.io');
+const io = SocketIo(server, {wsEngine: 'ws'});
 
 io.origins((origin, callback) => {
   if (origin !== 'http://localhost:8001') {
