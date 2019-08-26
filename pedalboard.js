@@ -1,58 +1,47 @@
 const fs = require('fs');
+const util = require('util');
 
+/*
+ * USAGE:
+ * const Pedalboard = require('./pedalboard.js');
+ * let pedalboard;
+ * Pedalboard.load().then(data => {pedalboard = new Pedalboard(data.pedalboards, data.device);})
+ */
 class Pedalboard {
-  constructor() {
-    this.all = this.loadAll();
-  }
-
-  loadAll() {
-    console.log('[Pedalboard] loadAll');
-    const path = './data/pedalboards.json';
-    let rtn;
-    fs.access(path, fs.F_OK, (err) => {
-      if (err) {
-        console.error('[Pedalboard] loadAll', err);
-        return;
-      }
-      //file exists
-      fs.readFile(path, (err, content) => {
-        const rtn = JSON.parse(content);
-        this.all = rtn;
-        console.log('[Pedalboard] loading pedalboards', rtn);
-        this.loadActive();
-      });
-    });
-    this.all = rtn;
-    return rtn;
-  }
-
-  loadActive() {
-    if (typeof(this.all) === 'undefined') {
-      console.error('[Pedalboard] loadActive this.all is undefined');
-      return;
+  constructor(pedalboards, device) {
+    console.log('[Pedalboard] new (pedalboards, device)', pedalboards, device);
+    this.all = pedalboards;
+    if(Object.keys(this.all).indexOf(device) > -1){
+      console.log('[Pedalboard] loading device', device);
+      this.active = device;
+    } else {
+      console.error('[Pedalboard] device not found', device);
     }
-    console.log('this.all', this.all);
-    const path = './data/device.json';
-    let rtn;
-    fs.access(path, fs.F_OK, (err) => {
-      if (err) {
-        console.error('[Pedalboard] loadActive', err);
-        return;
+  }
+
+  static load() {
+    const data = {
+      pedalboards: {
+        source: './data/pedalboards.json',
+        values: null
+      },
+      device: {
+        source: './data/device.json',
+        values: null
       }
-      //file exists
-      fs.readFile(path, (err, content) => {
-        let device = JSON.parse(content).device;
-        if(Object.keys(this.all).indexOf(device) > -1){
-          console.log('[Pedalboard] loadActive] loading device', device);
-          this.active = device;
-          rtn = device;
-        } else {
-          console.error('[Pedalboard] loadActive] device not found', device);
-          rtn = null;
-        }
-        return rtn;
-      });
-    });
+    };
+    const readFile = util.promisify(fs.readFile);
+    let result;
+
+    return Promise.all([
+      readFile(data['pedalboards'].source, 'utf8'),
+      readFile(data['device'].source, 'utf8')
+    ])
+    .then(r => {
+      result = r.map(content => JSON.parse(content));
+      return result;
+    })
+    .catch(e => console.error(e));
   }
 
   saveActive(device) {
@@ -70,12 +59,8 @@ class Pedalboard {
     });
   }
 
-  one(device) {
-    if (typeof(this.all) === 'undefined') {
-      this.loadAll();
-    }
-    const rtn = this.all ? this.all[device] : null;
-    return rtn;
+  activeMappings() {
+    return this.all[this.active].mappings;
   }
 }
 

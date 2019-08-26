@@ -1,9 +1,23 @@
 const server = require('./http_server.js');
+
 const io = require('./ws.js');
+
 const MidiStore = require('./midi_store.js');
-const midiStore = new MidiStore(io);
+let midiStore;
+
+const Pedalboard = require('./pedalboard');
+let pedalboard;
+Pedalboard.load()
+  .then(data => {
+    console.log('-- data --', data);
+    pedalboard = new Pedalboard(data[0], data[1].device);
+    midiStore = new MidiStore(io, pedalboard);
+  })
+  .catch(e => console.error(e));
+
 const mixer = require('./mixer.js');
 const fileBank = require('./file_bank.js');
+
 io.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });
 
