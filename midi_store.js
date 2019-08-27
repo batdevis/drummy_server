@@ -1,10 +1,10 @@
+const ws = require('./ws.js');
 const easymidi = require('easymidi');
 
 class MidiStore {
-
-  constructor(io, pedalboard) {
+  constructor(pedalboard) {
     console.log('[midiStore] pedalboard', pedalboard);
-    this.io = io;
+    this.ws = ws;
     this.pedalboard = pedalboard;
     this.midiInputActivate(pedalboard.active, false);
   }
@@ -47,7 +47,8 @@ class MidiStore {
   handleCc(msg) {
     //msg = { channel: 0, controller: 100, value: 127, _type: 'cc' }
     console.log('cc', msg);
-    this.io.emit('cc', msg);
+    //TODO use event emitter
+    this.ws.emit('cc', msg);
 
     if (this.pedalboard.active) {
       const mappings = this.pedalboard.activeMappings();
@@ -64,7 +65,8 @@ class MidiStore {
           cmd: key
         };
         console.log('cmd', cmd);
-        this.io.emit('cmd', cmd);
+        //TODO use event emitter
+        this.ws.emit('cmd', cmd);
       }
     } else {
       console.error('[MidiStore] handleCc no pedalboard active');
