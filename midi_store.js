@@ -19,6 +19,10 @@ class MidiStore {
       console.error('[MidiStore.midiInputActivate] device is undefined');
       return;
     }
+    if(this.midiInputs().indexOf(device) == -1) {
+      console.error(`[MidiStore.midiInputActivate] device ${device} not present`);
+      return;
+    }
     const input = new easymidi.Input(device);
     if(save){
       pedalboard.saveActive(device);

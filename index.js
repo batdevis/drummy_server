@@ -1,1 +1,1 @@
-const events = require('./events.js');
+const ee = require('./events.js');
