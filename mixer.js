@@ -1,14 +1,29 @@
 const fs = require('fs');
+const util = require('util');
 
+/*
+ * USAGE:
+ * const Mixer = require('./mixer.js');
+ * let mixer;
+ * Mixer.load().then(data => {mixer = new Mixer(data);})
+ */
 class Mixer{
-  constructor(){
-    this.load();
+  constructor(data) {
+    console.log('[Mixer] constructor', data);
+    this.channels = data;
   }
 
-  load() {
-    const channels = require('./data/channels');
-    this.channels = channels;
-    return channels;
+  static load() {
+    const readFile = util.promisify(fs.readFile);
+    let channels;
+    return readFile('./data/channels.json', 'utf-8', (err, data) => {
+      if (err) {
+        console.error('[Mixer] load error'); 
+      }
+      channels = JSON.parse(data)
+      console.log('[Mixer] loaded channels', channels);
+      return channels;
+    })
   }
 
   setChannelFile(channelId, file) {
@@ -27,10 +42,6 @@ class Mixer{
       console.log('[setChannelFile] channel not found', channelId);
     }
   }
-  
-  reload() {
-    this.load();
-  }
 }
 
-module.exports = new Mixer();
+module.exports = Mixer;
