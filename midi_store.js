@@ -38,12 +38,14 @@ class MidiStore {
   
   midiInputList() {
     let rtn = {
-      inputs: this.midiInputs(),
-      active: {
-        name: this.midiInput,
-        pedalboard: this.pedalboard
-      }
+      inputs: this.midiInputs()
     };
+    if(this.midiInput) {
+      rtn.active = {
+        name: this.midiInput,
+        pedalboard: this.pedalboard.active
+      };
+    }
     console.log('[midiInputList]', rtn);
     return rtn;
   }
