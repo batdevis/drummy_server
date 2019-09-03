@@ -14,13 +14,13 @@ class FileBank{
     const banks = fs.readdirSync(cfg.audio_folder);
     const tree = [];
     banks.forEach(bank => {
-      console.log("bank", bank);
       tree.push({
         name: bank,
         files: fs.readdirSync(`${cfg.audio_folder}/${bank}`)
       });
     })
     this.tree = tree;
+    console.log('[FileBank] tree', tree);
     return tree;
   }
 

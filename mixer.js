@@ -10,20 +10,27 @@ const util = require('util');
 class Mixer{
   constructor(data) {
     console.log('[Mixer] constructor', data);
-    this.channels = data;
+    this.channels = data.channels;
   }
 
   static load() {
-    const readFile = util.promisify(fs.readFile);
-    let channels;
-    return readFile('./data/channels.json', 'utf-8', (err, data) => {
-      if (err) {
-        console.error('[Mixer] load error'); 
+    const data = {
+      channels: {
+        source: './data/channels.json',
+        values: null
       }
-      channels = JSON.parse(data)
-      console.log('[Mixer] loaded channels', channels);
-      return channels;
+    };
+    const readFile = util.promisify(fs.readFile);
+    let result;
+
+    return Promise.all([
+      readFile(data['channels'].source, 'utf8')
+    ])
+    .then(r => {
+      result = r.map(content => JSON.parse(content));
+      return result;
     })
+    .catch(e => console.error(e));
   }
 
   setChannelFile(channelId, file) {
