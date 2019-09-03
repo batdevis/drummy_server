@@ -3,6 +3,7 @@
 const MidiStore = require('./midi_store.js');
 let midiStore;
 
+//TODO Promise.all for pedalboard and mixer, then setup events
 //----------------- Pedalboard -------------------
 const Pedalboard = require('./pedalboard');
 let pedalboard;
@@ -62,10 +63,14 @@ ee.on('getFileTree', () => {
 
 ee.on('getChannels', () => {
   console.log('[event] getChannels');
-  const rtn = {
-    channels: mixer.channels
+  const rtn = {channels: []};
+  if(mixer) {
+    rtn.channels = mixer.channels;
+    console.log('[event] send channels', rtn);
+  } else {
+    rtn.channels = [];
+    console.error('[event] send channels: mixer is', mixer);
   }
-  console.log('[event] send channels', rtn);
   wsEmit('channels', rtn);
 });
 
