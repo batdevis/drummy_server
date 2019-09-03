@@ -1,10 +1,9 @@
-const cfg = require('./cfg.json');
-//const server = require('./http_server.js');
+const server = require('./http_server.js');
 
 const WebSocket = require('ws');
-const ws = new WebSocket.Server({ port: cfg.port });
+const wss = new WebSocket.Server({ server });
 
-const channelWhitelist = [
+const areaWhitelist = [
   'getMidiInputList',
   'getFileTree',
   'getChannels',
@@ -12,46 +11,28 @@ const channelWhitelist = [
   'setChannelFile'
 ];
 
-ws.on('connection',(ws, req) => {
-  const ip = req.connection.remoteAddress;
-  console.log('[ws] connection ip', ip);
+wss.on('connection',(ws, req) => {
   const ee = require('./events.js');
 
-  ws.send('hi', ip);
+  wsSend({area: 'greetings'}, ws);
 
   ws.on('message', msg => {
     msg = JSON.parse(msg);
     console.log('[ws] received msg', msg);
-    if(channelWhitelist.indexOf(msg.channel) > -1) {
-      ee.emit(msg.channel, msg.data);
+    if(areaWhitelist.indexOf(msg.area) > -1) {
+      ee.emit(msg.area, msg.content);
     } else {
-      console.log(`[ws] channel ${msg.channel} unknown`);
+      console.log('[ws] area unknown', msg.area);
     }
   });
-  ws.on('close', function close() {
+
+  ws.on('close', () => {
     console.log('[ws] close');
   });
-/*
-  ws.on('getMidiInputList', () => {
-    ee.emit('getMidiInputList');
-  });
-
-  ws.on('getFileTree', () => {
-    ee.emit('getFileTree');
-  });
-
-  ws.on('getChannels', () => {
-    ee.emit('getChannels');
-  });
-
-  ws.on('setMidiInput', (data) => {
-    ee.emit('setMidiInput', data);
-  });
-  
-  ws.on('setChannelFile', (data) => {
-    ee.emit('setChannelFile', data);
-  });
-*/
 });
 
-module.exports = ws;
+function wsSend(msg, ws) {
+  ws.send(JSON.stringify(msg));
+}
+
+module.exports = wss;

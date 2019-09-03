@@ -20,16 +20,16 @@ const ws = require('./ws.js');
 const mixer = require('./mixer.js');
 const fileBank = require('./file_bank.js');
 
-const ee=new EventEmitter()
+const ee = new EventEmitter()
 
-function ws_emit(ch, data) {
-  const msg = {
-    ch: ch,
-    data: data
-  };
+function wsEmit(area, content) {
+  const msg = JSON.stringify({
+    area: area,
+    content: content
+  });
   ws.clients.forEach(function each(client) {
     if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(msg));
+      client.send(msg);
     }
   });
 }
@@ -38,7 +38,7 @@ ee.on('getMidiInputList', () => {
   console.log('[event] getMidiInputList');
   const rtn = midiStore.midiInputList();
   console.log('[ws] send midiInputList', rtn);
-  ws_emit('midiInputList', rtn);
+  wsEmit('midiInputList', rtn);
 });
 
 ee.on('getFileTree', () => {
@@ -48,7 +48,7 @@ ee.on('getFileTree', () => {
     tree: fileBank.tree
   }
   console.log('[event] send fileTree', rtn);
-  ws_emit('fileTree', rtn);
+  wsEmit('fileTree', rtn);
 });
 
 ee.on('getChannels', () => {
@@ -57,7 +57,7 @@ ee.on('getChannels', () => {
     channels: mixer.channels
   }
   console.log('[event] send channels', rtn);
-  ws_emit('channels', rtn);
+  wsEmit('channels', rtn);
 });
 
 ee.on('setMidiInput', data => {
