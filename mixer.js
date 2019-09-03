@@ -10,7 +10,7 @@ const util = require('util');
 class Mixer{
   constructor(data) {
     console.log('[Mixer] constructor', data);
-    this.channels = data.channels;
+    this.channels = data;
   }
 
   static load() {
@@ -28,7 +28,7 @@ class Mixer{
     ])
     .then(r => {
       result = r.map(content => JSON.parse(content));
-      return result;
+      return result[0];
     })
     .catch(e => console.error(e));
   }

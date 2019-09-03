@@ -69,6 +69,7 @@ function eeSetup(ee, resources) {
     console.log('[event] getChannels');
     const rtn = {channels: []};
     if(mixer) {
+      console.log('[event] send channels. mixer', mixer);
       rtn.channels = mixer.channels;
       console.log('[event] send channels', rtn);
     } else {

@@ -87,6 +87,5 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
-data/device.json
-data/pedalboards.json
+data/*.json
 cfg.json
