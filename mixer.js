@@ -9,10 +9,9 @@ const util = require('util');
  */
 class Mixer{
   constructor(data) {
-    console.log('[Mixer] constructor', data);
     this.channels = data;
   }
-
+/*
   static load() {
     const data = {
       channels: {
@@ -32,7 +31,7 @@ class Mixer{
     })
     .catch(e => console.error(e));
   }
-
+*/
   setChannelFile(channelId, file) {
     const channel = this.channels.find( ch => ch.id === channelId);
     if (channel) {

@@ -20,7 +20,6 @@ class FileBank{
       });
     })
     this.tree = tree;
-    console.log('[FileBank] tree', tree);
     return tree;
   }
 

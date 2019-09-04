@@ -1,5 +1,6 @@
 const EventEmitter = require('events');
 const WebSocket = require('ws');
+const fsp = require('fs').promises;
 
 const Pedalboard = require('./pedalboard');
 const MidiStore = require('./midi_store.js');
@@ -9,16 +10,50 @@ const fileBank = require('./file_bank.js');
 
 const ee = new EventEmitter()
 
-Promise.all([
+/*
+ Promise.all([
   loadMidiStore(), 
   loadMixer()
 ])
-.then(resources => eeSetup(ee, resources));
+*/
+loadResources()
+  .then(resources => {
+    const pedalboard = new Pedalboard(resources.pedalboards);
+    const midiStore = new MidiStore(pedalboard, resources.device);
+    const mixer = new Mixer(resources.channels);
 
+    eeSetup(ee, midiStore, mixer);
+  });
+
+function loadResources() {
+  const files = {
+    channels: './data/channels.json',
+    device: './data/device.json',
+    pedalboards: './data/pedalboards.json'
+  };
+  
+  return Promise.all([
+    fsp.readFile(files.channels, 'utf8').catch(e => console.error(e)),
+    fsp.readFile(files.device, 'utf8').catch(e => console.error(e)),
+    fsp.readFile(files.pedalboards, 'utf8').catch(e => console.error(e))
+  ])
+  .then(contents => {
+    const results = contents.map(content => JSON.parse(content));
+    const resources = {
+      channels: results[0],
+      device: results[1].device,
+      pedalboards: results[2]
+    };
+    console.log('resources', resources);
+    return resources;
+  })
+  .catch(e => console.error(e));
+}
+/*
 function loadMidiStore() {
   return Pedalboard.load()
     .then(data => {
-      const pedalboard = new Pedalboard(data[0], data[1].device);
+      const pedalboard = new Pedalboard(data[0]);
       return new MidiStore(pedalboard);
     })
     .catch(e => console.error(e));
@@ -27,11 +62,11 @@ function loadMidiStore() {
 function loadMixer() {
   return Mixer.load()
     .then(data => {
-      console.log('[loadMixer] data', data);
       return new Mixer(data);
     })
     .catch(e => console.error(e));
 }
+*/
 function wsEmit(area, content) {
   const msg = JSON.stringify({
     area: area,
@@ -44,10 +79,7 @@ function wsEmit(area, content) {
   });
 }
 
-function eeSetup(ee, resources) {
-  const midiStore = resources[0];
-  const mixer = resources[1];
-
+function eeSetup(ee, midiStore, mixer) {
   ee.on('getMidiInputList', () => {
     console.log('[event] getMidiInputList');
     const rtn = midiStore.midiInputList();
@@ -61,7 +93,6 @@ function eeSetup(ee, resources) {
     const rtn = {
       tree: fileBank.tree
     }
-    console.log('[event] send fileTree', rtn);
     wsEmit('fileTree', rtn);
   });
 
@@ -69,9 +100,8 @@ function eeSetup(ee, resources) {
     console.log('[event] getChannels');
     const rtn = {channels: []};
     if(mixer) {
-      console.log('[event] send channels. mixer', mixer);
       rtn.channels = mixer.channels;
-      console.log('[event] send channels', rtn);
+      //console.log('[event] send channels', rtn);
     } else {
       rtn.channels = [];
       console.error('[event] send channels: mixer is', mixer);

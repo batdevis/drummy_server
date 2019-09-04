@@ -8,17 +8,21 @@ const util = require('util');
  * Pedalboard.load().then(data => {pedalboard = new Pedalboard(data.pedalboards, data.device);})
  */
 class Pedalboard {
-  constructor(pedalboards, device) {
-    console.log('[Pedalboard] new (pedalboards, device)', pedalboards, device);
+  constructor(pedalboards) {
     this.all = pedalboards;
-    if(Object.keys(this.all).indexOf(device) > -1){
-      console.log('[Pedalboard] loading device', device);
-      this.active = device;
-    } else {
-      console.error('[Pedalboard] device not found', device);
-    }
   }
 
+  find(device) {
+    console.log('[Pedalboard] find(device)', device);
+    if(Object.keys(this.all).indexOf(device) > -1){
+      console.log('[Pedalboard] found device', device);
+      return this.all[device];
+    } else {
+      console.error('[Pedalboard] device not found', device);
+      return null;
+    }
+  }
+/*
   static load() {
     const data = {
       pedalboards: {
@@ -43,7 +47,7 @@ class Pedalboard {
     })
     .catch(e => console.error(e));
   }
-
+*/
   saveActive(device) {
     const json = JSON.stringify(
       {
@@ -55,12 +59,8 @@ class Pedalboard {
         console.error('[Pedalboard] saveDevice', err);
         return;
       };
-      console.log('[Pedalboar] saveDevice: file written for device', device);
+      console.log('[Pedalboard] saveDevice: file written for device', device);
     });
-  }
-
-  activeMappings() {
-    return this.all[this.active].mappings;
   }
 }
 

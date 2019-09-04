@@ -7,7 +7,7 @@ const areaWhitelist = [
   'getMidiInputList',
   'getFileTree',
   'getChannels',
-  'setMidiImput',
+  'setMidiInput',
   'setChannelFile'
 ];
 
