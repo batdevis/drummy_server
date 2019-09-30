@@ -123,6 +123,11 @@ function eeSetup(ee, midiStore, mixer) {
     mixer.setChannelFile(data.channelId, data.filePath);
     ee.emit('getChannels');
   });
+  
+  ee.on('cmd', (data) => {
+    console.log('[event] cmd', data);
+    wsEmit('cmd', data);
+  });
 }
 
 module.exports = ee;

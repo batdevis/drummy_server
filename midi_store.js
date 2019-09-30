@@ -55,13 +55,17 @@ class MidiStore {
   }
 
   handleCc(msg) {
+    const ee = require('./events.js');
     //msg = { channel: 0, controller: 100, value: 127, _type: 'cc' }
-    console.log('cc', msg);
-    //TODO use event emitter
-    this.ws.emit('cc', msg);
+    console.log('');
+    console.log('[MidiStore] handleCc msg', msg);
+    //TODO delete this
+    //this.ws.emit('cc', msg);
 
-    if (this.activePedalboard) {
-      const mappings = this.activePedalboard.mappings;
+    const activePedalboard = this.activePedalboard();
+    console.log('[MidiStore] handleCc activePedalboard', activePedalboard);
+    if (activePedalboard) {
+      const mappings = activePedalboard.mappings;
       const key = Object.keys(mappings).find(k => {
         return (
           (mappings[k].message_type === 'cc') &&
@@ -74,9 +78,12 @@ class MidiStore {
         const cmd = {
           cmd: key
         };
-        console.log('cmd', cmd);
+        console.log('[MidiStore] handleCc cmd', cmd);
         //TODO use event emitter
-        this.ws.emit('cmd', cmd);
+        //this.ws.emit('cmd', cmd);
+        ee.emit('cmd', cmd);
+      } else {
+        console.error('[MidiStore] handleCc key not found', key);
       }
     } else {
       console.error('[MidiStore] handleCc no pedalboard active');
